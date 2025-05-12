@@ -4,18 +4,16 @@ from generadores.congruencial_aditivo import congruencial_aditivo
 from generadores.congruencial_multiplicativo import congruencial_multiplicativo
 from generadores.congruencial_mixto import congruencial_mixto
 from validacion.chi_cuadrado import chi_cuadrado_uniforme
+from simulacion.simulador_bar_ucp import iniciar_simulacion
 
-def menu():
-    print("=== Generadores Pseudoaleatorios ===")
+def generar_y_validar():
+    print("\n=== Generadores Pseudoaleatorios ===")
     print("1. Cuadrados Medios")
     print("2. Fibonacci")
     print("3. Congruencial Aditivo")
     print("4. Congruencial Multiplicativo")
     print("5. Congruencial Mixto")
-    return input("Seleccione una opción (1-5): ")
-
-def main():
-    opcion = menu()
+    opcion = input("Seleccione una opción (1-5): ")
     cantidad = int(input("Ingrese cantidad de números a generar: "))
 
     if opcion == "1":
@@ -56,6 +54,25 @@ def main():
     print(f"Chi2 observado: {resultado['chi2_observado']:.3f}")
     print(f"Chi2 crítico:   {resultado['chi2_critico']:.3f}")
     print("¿Pasa el test?:", "✅ Sí" if resultado["resultado"] else "❌ No")
+    print("Frecuencias observadas por intervalo:", resultado['frecuencias_observadas'])
+
+def main():
+    while True:
+        print("\n=== TP2 – Simulación Bar UCP ===")
+        print("1. Generar y validar números pseudoaleatorios")
+        print("2. Ir a simulación del bar")
+        print("3. Salir")
+        opcion = input("Seleccione una opción: ")
+
+        if opcion == "1":
+            generar_y_validar()
+        elif opcion == "2":
+            iniciar_simulacion()
+        elif opcion == "3":
+            print("Saliendo...")
+            break
+        else:
+            print("Opción inválida.")
 
 if __name__ == "__main__":
     main()
