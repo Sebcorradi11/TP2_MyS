@@ -4,7 +4,8 @@ from generadores.congruencial_aditivo import congruencial_aditivo
 from generadores.congruencial_multiplicativo import congruencial_multiplicativo
 from generadores.congruencial_mixto import congruencial_mixto
 from validacion.chi_cuadrado import chi_cuadrado_uniforme
-from simulacion.simulador_bar_ucp import iniciar_simulacion
+from simulador_bar_ucp import iniciar_simulacion
+
 
 def generar_y_validar():
     print("\n=== Generadores Pseudoaleatorios ===")
