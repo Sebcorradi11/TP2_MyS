@@ -6,7 +6,7 @@ from generadores.congruencial_mixto import congruencial_mixto
 from validacion.chi_cuadrado import chi_cuadrado_uniforme
 from simulador_bar_ucp import iniciar_simulacion
 
-
+# Función para generar números pseudoaleatorios y validarlos con Chi-cuadrado
 def generar_y_validar():
     print("\n=== Generadores Pseudoaleatorios ===")
     print("1. Cuadrados Medios")
@@ -14,9 +14,12 @@ def generar_y_validar():
     print("3. Congruencial Aditivo")
     print("4. Congruencial Multiplicativo")
     print("5. Congruencial Mixto")
+
+    # Selección de método
     opcion = input("Seleccione una opción (1-5): ")
     cantidad = int(input("Ingrese cantidad de números a generar: "))
 
+    # Opciones para cada generador
     if opcion == "1":
         semilla = int(input("Ingrese semilla (ej. 1234): "))
         numeros = cuadrados_medios(semilla, cantidad)
@@ -50,6 +53,7 @@ def generar_y_validar():
         print("Opción inválida")
         return
 
+    # Validación del generador con el test de Chi-cuadrado
     print("\n--- Resultados del Test Chi-cuadrado ---")
     resultado = chi_cuadrado_uniforme(numeros)
     print(f"Chi2 observado: {resultado['chi2_observado']:.3f}")
@@ -57,6 +61,7 @@ def generar_y_validar():
     print("¿Pasa el test?:", "✅ Sí" if resultado["resultado"] else "❌ No")
     print("Frecuencias observadas por intervalo:", resultado['frecuencias_observadas'])
 
+# Menú principal por consola
 def main():
     while True:
         print("\n=== TP2 – Simulación Bar UCP ===")
@@ -75,5 +80,6 @@ def main():
         else:
             print("Opción inválida.")
 
+# Punto de entrada del programa
 if __name__ == "__main__":
     main()

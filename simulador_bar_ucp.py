@@ -7,43 +7,52 @@ import secrets
 import numpy as np
 from scipy.stats import chisquare
 
-# Importar tus generadores
+# Importar los generadores pseudoaleatorios
 from generadores.cuadrados_medios import cuadrados_medios
 from generadores.fibonacci import fibonacci_mod as fibonacci
 from generadores.congruencial_aditivo import congruencial_aditivo
 from generadores.congruencial_multiplicativo import congruencial_multiplicativo
 from generadores.congruencial_mixto import congruencial_mixto
 
-TIEMPO_JORNADA = 840
-FRANJAS = [
+# Constantes de simulación
+tiempo_jornada = 840  # duración de la jornada en minutos
+franjas = [
     (0, 240, (4, 6)),
     (240, 360, (2, 4)),
     (360, 600, (3, 5)),
     (600, 780, (2, 4)),
     (780, 840, (1, 2))
 ]
-PRODUCTOS = ["sándwich", "jugo", "café", "chipá"]
+productos = ["sándwich", "jugo", "café", "chipá"]
 
+# Clase que representa a un cliente
 class Cliente:
     def __init__(self, id_cliente, pedido):
         self.id = id_cliente
         self.pedido = pedido
 
+# Clase que representa un recurso (empleado en caja o barra)
 class Recurso:
     def __init__(self, cantidad):
         self.cantidad = cantidad
         self.ocupados = 0
+
     def disponible(self):
         return self.ocupados < self.cantidad
+
     def ocupar(self):
         self.ocupados += 1
+
     def liberar(self):
         self.ocupados -= 1
 
+# Clase principal del simulador
 class SimuladorBarUCP:
     def __init__(self, root):
         self.root = root
         self.root.title("Simulación Bar UCP")
+
+        # Variables de estado
         self.clientes = []
         self.reloj = 0
         self.atendidos = 0
@@ -53,41 +62,47 @@ class SimuladorBarUCP:
         self.cuellos_por_hora = defaultdict(int)
         self.contador_pedidos = defaultdict(int)
         self.pedidos_recientes = deque(maxlen=5)
-        self.generadores = {
-        "Von Neumann (Cuadrados Medios)": lambda: cuadrados_medios(seed=secrets.randbelow(10**8), cantidad=10000),
-        "Fibonacci": lambda: fibonacci(secrets.randbelow(1000), secrets.randbelow(1000), 10000, 10000),
-        "Cong. aditivo": lambda: congruencial_aditivo(
-            [secrets.randbelow(1000), secrets.randbelow(1000)], 10000, 10000),
-        "Cong. multiplicativo": lambda: congruencial_multiplicativo(
-            seed=secrets.randbelow(1000), a=secrets.randbelow(10000), m=10007, cantidad=10000),
-        "Cong. mixto": lambda: congruencial_mixto(
-            seed=secrets.randbelow(2**32), a=1664525, c=1013904223, m=2**32, cantidad=10000)
-       }
 
-        # Interfaz
+        # Diccionario de generadores disponibles
+        self.generadores = {
+            "Von Neumann (Cuadrados Medios)": lambda: cuadrados_medios(seed=secrets.randbelow(10**8), cantidad=10000),
+            "Fibonacci": lambda: fibonacci(secrets.randbelow(1000), secrets.randbelow(1000), 10000, 10000),
+            "Cong. aditivo": lambda: congruencial_aditivo([secrets.randbelow(1000), secrets.randbelow(1000)], 10000, 10000),
+            "Cong. multiplicativo": lambda: congruencial_multiplicativo(seed=secrets.randbelow(1000), a=secrets.randbelow(10000), m=10007, cantidad=10000),
+            "Cong. mixto": lambda: congruencial_mixto(seed=secrets.randbelow(2**32), a=1664525, c=1013904223, m=2**32, cantidad=10000)
+        }
+
+        # Componentes de interfaz gráfica
         frame = tk.Frame(root)
         frame.pack()
         tk.Label(frame, text="Caja:").grid(row=0, column=0)
         self.entry_caja = tk.Entry(frame, width=5)
         self.entry_caja.insert(0, "1")
         self.entry_caja.grid(row=0, column=1)
+
         tk.Label(frame, text="Barra:").grid(row=1, column=0)
         self.entry_barra = tk.Entry(frame, width=5)
         self.entry_barra.insert(0, "1")
         self.entry_barra.grid(row=1, column=1)
+
         tk.Label(frame, text="Generador:").grid(row=2, column=0)
         self.var_generador = tk.StringVar(value="Cong. mixto")
         self.selector = tk.OptionMenu(frame, self.var_generador, *self.generadores.keys())
         self.selector.grid(row=2, column=1)
+
         self.btn_inicio = tk.Button(root, text="▶ Iniciar simulación", command=self.iniciar)
         self.btn_inicio.pack(pady=5)
+
         self.resultado = tk.Label(root, text="", font=("Consolas", 10), justify="left")
         self.resultado.pack()
+
         self.lista_pedidos = tk.Label(root, text="", justify="left", font=("Consolas", 10))
         self.lista_pedidos.pack()
+
         self.resultado_chi = tk.Label(root, text="", fg="blue", font=("Consolas", 10))
         self.resultado_chi.pack()
 
+    # Inicia la simulación con parámetros ingresados
     def iniciar(self):
         self.recurso_caja = Recurso(int(self.entry_caja.get()))
         self.recurso_barra = Recurso(int(self.entry_barra.get()))
@@ -105,8 +120,9 @@ class SimuladorBarUCP:
         self.resultado_chi.config(text="")
         threading.Thread(target=self.simular, daemon=True).start()
 
+    # Bucle principal de simulación
     def simular(self):
-        while self.reloj < TIEMPO_JORNADA:
+        while self.reloj < tiempo_jornada:
             self.controlar_llegadas()
             self.detectar_cuello()
             self.atender_caja()
@@ -118,7 +134,7 @@ class SimuladorBarUCP:
 
     def controlar_llegadas(self):
         if self.reloj % self.obtener_intervalo_llegada() == 0:
-            pedido = random.choice(PRODUCTOS)
+            pedido = random.choice(productos)
             cliente = Cliente(len(self.clientes)+1, pedido)
             self.clientes.append(cliente)
             self.cola_caja.append(cliente)
@@ -132,7 +148,7 @@ class SimuladorBarUCP:
             self.total_cuellos += 1
 
     def obtener_intervalo_llegada(self):
-        for ini, fin, (min_l, max_l) in FRANJAS:
+        for ini, fin, (min_l, max_l) in franjas:
             if ini <= self.reloj < fin:
                 r = self.obtener_random()
                 return min_l + int(r * (max_l - min_l + 1))
@@ -188,10 +204,11 @@ class SimuladorBarUCP:
         datos = self.generador_actual[:100]
         obs, _ = np.histogram(datos, bins=10, range=(0, 1))
         chi2_stat, _ = chisquare(obs)
-        critico = 16.919  # α=0.05 con 9 grados de libertad
+        critico = 16.919  # α=0.05 con 9 gl
         resultado = f"--- Test Chi-cuadrado ---\nχ² observado: {chi2_stat:.3f}\nχ² crítico: {critico}\n¿Pasa?: {'✅ Sí' if chi2_stat < critico else '❌ No'}"
         self.resultado_chi.config(text=resultado)
 
+# Lanza la interfaz de simulación
 def iniciar_simulacion():
     root = tk.Tk()
     app = SimuladorBarUCP(root)
