@@ -21,32 +21,56 @@ def generar_y_validar():
 
     # Opciones para cada generador
     if opcion == "1":
-        semilla = int(input("Ingrese semilla (ej. 1234): "))
+        semilla = int(input("Ingrese semilla (de 4 cifras, ej. 1234): "))
+        if semilla < 1000 or semilla > 9999:
+            print("⚠️ Semilla recomendada: 4 cifras (1000–9999).")
         numeros = cuadrados_medios(semilla, cantidad)
 
     elif opcion == "2":
         m1 = int(input("Ingrese semilla 1: "))
         m2 = int(input("Ingrese semilla 2: "))
-        modulo = int(input("Ingrese módulo (por defecto 10000): ") or 10000)
+        if m1 == m2:
+            print("⚠️ m1 y m2 deberían ser distintos para mejor aleatoriedad.")
+        modulo = int(input("Ingrese módulo (sugerido ≥1000): ") or 10000)
+        if modulo < 1000:
+            print("⚠️ Se recomienda módulo mayor o igual a 1000.")
         numeros = fibonacci_mod(m1, m2, cantidad, modulo)
 
     elif opcion == "3":
         seeds = input("Ingrese al menos 2 semillas separadas por coma (ej. 123,456): ")
         seed_list = list(map(int, seeds.split(",")))
-        modulo = int(input("Ingrese módulo (por defecto 10000): ") or 10000)
+        if len(seed_list) < 2:
+            print("⚠️ Ingrese al menos 2 semillas para iniciar.")
+        modulo = int(input("Ingrese módulo (sugerido ≥1000): ") or 10000)
+        if modulo < 1000:
+            print("⚠️ Se recomienda módulo mayor o igual a 1000.")
         numeros = congruencial_aditivo(seed_list, cantidad, modulo)
 
     elif opcion == "4":
-        seed = int(input("Ingrese semilla: "))
-        a = int(input("Ingrese constante multiplicativa a: "))
-        m = int(input("Ingrese módulo m: "))
+        seed = int(input("Ingrese semilla (>0): "))
+        a = int(input("Ingrese constante a (>0): "))
+        m = int(input("Ingrese módulo m (>a): "))
+        if seed <= 0:
+            print("⚠️ La semilla debería ser mayor a 0.")
+        if a <= 0:
+            print("⚠️ 'a' debe ser mayor que 0.")
+        if m <= a:
+            print("⚠️ 'm' debe ser mayor que 'a'.")
         numeros = congruencial_multiplicativo(seed, a, m, cantidad)
 
     elif opcion == "5":
-        seed = int(input("Ingrese semilla: "))
-        a = int(input("Ingrese constante a: "))
-        c = int(input("Ingrese constante c: "))
-        m = int(input("Ingrese módulo m: "))
+        seed = int(input("Ingrese semilla (≥0): "))
+        a = int(input("Ingrese constante a (>0): "))
+        c = int(input("Ingrese constante c (≥0): "))
+        m = int(input("Ingrese módulo m (>a): "))
+        if a <= 0:
+            print("⚠️ Se recomienda que 'a' > 0.")
+        if c < 0:
+            print("⚠️ 'c' debe ser positivo o cero.")
+        if m <= a:
+            print("⚠️ 'm' debe ser mayor que 'a'.")
+        if seed < 0:
+            print("⚠️ Semilla negativa, resultados podrían no ser válidos.")
         numeros = congruencial_mixto(seed, a, c, m, cantidad)
 
     else:
