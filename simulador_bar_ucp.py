@@ -9,7 +9,6 @@ import tkinter as tk
 import threading
 import time
 from collections import defaultdict, deque
-import random
 import numpy as np
 from scipy.stats import chisquare
 
@@ -129,7 +128,7 @@ class SimuladorBarUCP:
                     advertencias.append("m1 y m2 deberían ser distintos.")
                 if modulo < 1000:
                     advertencias.append("Se recomienda módulo ≥ 1000.")
-                self.generador_actual = fibonacci(m1, m2, 10000, modulo)
+                self.generador_actual = fibonacci_mod(m1, m2, 10000, modulo)
 
             elif metodo == "Cong. aditivo":
                 semillas = list(map(int, self.param_entries["semillas"].get().split(",")))
@@ -185,10 +184,6 @@ class SimuladorBarUCP:
         self.resultado_chi.config(text="")
         threading.Thread(target=self.simular, daemon=True).start()
 
-    # Las funciones simular(), controlar_llegadas(), atender_caja()... permanecen igual.
-
-
-
     def simular(self):
         while self.reloj < TIEMPO_JORNADA:
             self.controlar_llegadas()
@@ -202,7 +197,9 @@ class SimuladorBarUCP:
 
     def controlar_llegadas(self):
         if self.reloj % self.obtener_intervalo_llegada() == 0:
-            pedido = random.choice(PRODUCTOS)
+            r = self.obtener_random()
+            indice = int(r * len(PRODUCTOS))
+            pedido = PRODUCTOS[indice % len(PRODUCTOS)]
             cliente = Cliente(len(self.clientes)+1, pedido)
             self.clientes.append(cliente)
             self.cola_caja.append(cliente)
