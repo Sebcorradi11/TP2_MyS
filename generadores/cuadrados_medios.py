@@ -1,17 +1,22 @@
-def cuadrados_medios(seed: int, cantidad: int) -> list:
+def cuadrados_medios(seed: int, cantidad: int) -> tuple:
     """
-    Generador de Cuadrados Medios.
+    Generador pseudoaleatorio usando el método de Cuadrados Medios de Von Neumann.
+
     Parámetros:
-        seed: semilla inicial (de 4 cifras preferentemente)
-        cantidad: cuántos números generar
+    - seed (int): Semilla inicial (preferentemente de 4 cifras).
+    - cantidad (int): Cantidad de números a generar.
+
     Retorna:
-        Lista de números pseudoaleatorios normalizados en [0,1)
+    - tuple: (lista de números en [0,1), primera semilla generada internamente)
     """
     resultados = []
     valor = seed
-    for _ in range(cantidad):
-        cuadrado = str(valor ** 2).zfill(8)  # aseguramos 8 dígitos
-        medio = int(cuadrado[2:6])           # tomamos los 4 del medio
-        resultados.append(medio / 10000)     # normalizamos
+    primera_semilla = None
+    for i in range(cantidad):
+        cuadrado = str(valor ** 2).zfill(8)
+        medio = int(cuadrado[2:6])
+        if i == 0:
+            primera_semilla = medio
+        resultados.append(medio / 10000)
         valor = medio
-    return resultados
+    return resultados, primera_semilla

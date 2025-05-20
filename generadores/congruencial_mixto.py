@@ -1,18 +1,27 @@
-def congruencial_mixto(seed: int, a: int, c: int, m: int, cantidad: int) -> list:
+def congruencial_mixto(seed: int, a: int, c: int, m: int, cantidad: int) -> tuple:
     """
-    Generador Congruencial Mixto.
+    Generador congruencial mixto (con componente aditivo).
+
+    Fórmula: Xn+1 = (a * Xn + c) mod m
+
     Parámetros:
-        seed: semilla inicial
-        a: multiplicador
-        c: constante aditiva
-        m: módulo
-        cantidad: cuántos números generar
+    - seed (int): Semilla inicial.
+    - a (int): Constante multiplicativa.
+    - c (int): Constante aditiva.
+    - m (int): Módulo.
+    - cantidad (int): Número de valores a generar.
+
     Retorna:
-        Lista de números pseudoaleatorios normalizados en [0,1)
+    - tuple: (lista de números en [0,1), primera semilla generada)
     """
     resultados = []
     valor = seed
-    for _ in range(cantidad):
+    primera_semilla = None
+    for i in range(cantidad):
         valor = (a * valor + c) % m
+        if i == 0:
+            primera_semilla = valor
         resultados.append(valor / m)
-    return resultados
+    return resultados, primera_semilla
+
+

@@ -1,16 +1,23 @@
-def congruencial_aditivo(seed_list: list, cantidad: int, modulo: int = 10000) -> list:
+def congruencial_aditivo(seed_list: list, cantidad: int, modulo: int = 10000) -> tuple:
     """
-    Generador Congruencial Aditivo.
+    Generador congruencial aditivo.
+
+    Fórmula: Xn = (Xn-1 + Xn-2) mod m
+
     Parámetros:
-        seed_list: lista con al menos dos semillas iniciales
-        cantidad: cuántos números generar
-        modulo: para normalizar la salida
+    - seed_list (list): Lista con al menos dos valores iniciales.
+    - cantidad (int): Número de valores a generar.
+    - modulo (int): Módulo para mantener los valores dentro del rango.
+
     Retorna:
-        Lista de números pseudoaleatorios normalizados en [0,1)
+    - tuple: (lista de números en [0,1), primera semilla generada)
     """
     resultados = []
-    for _ in range(cantidad):
+    primera_semilla = None
+    for i in range(cantidad):
         nuevo = (seed_list[-1] + seed_list[-2]) % modulo
+        if i == 0:
+            primera_semilla = nuevo
         resultados.append(nuevo / modulo)
         seed_list.append(nuevo)
-    return resultados
+    return resultados, primera_semilla

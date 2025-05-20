@@ -1,17 +1,24 @@
-def fibonacci_mod(m1: int, m2: int, cantidad: int, modulo: int = 10000) -> list:
+def fibonacci_mod(m1: int, m2: int, cantidad: int, modulo: int = 10000) -> tuple:
     """
-    Generador de Fibonacci modificado.
+    Generador de números pseudoaleatorios basado en la secuencia de Fibonacci modificada.
+
     Parámetros:
-        m1, m2: dos semillas iniciales
-        cantidad: cuántos números generar
-        modulo: para mantener rango fijo
+    - m1 (int): Primera semilla inicial.
+    - m2 (int): Segunda semilla inicial.
+    - cantidad (int): Cantidad de números a generar.
+    - modulo (int): Valor del módulo para mantener los valores dentro de un rango.
+
     Retorna:
-        Lista de números pseudoaleatorios normalizados en [0,1)
+    - tuple: (lista de números en [0,1), primera semilla generada internamente)
     """
     resultados = []
     a, b = m1, m2
-    for _ in range(cantidad):
+    primera_semilla = None
+    for i in range(cantidad):
         r = (a + b) % modulo
+        if i == 0:
+            primera_semilla = r
         resultados.append(r / modulo)
         a, b = b, r
-    return resultados
+    return resultados, primera_semilla
+
